@@ -1,0 +1,7 @@
+bot:
+  app_id: ""
+  channel_id: ""
+  guild_id: ""
+  token: ""
+
+test: "test"
