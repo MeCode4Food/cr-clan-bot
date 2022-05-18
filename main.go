@@ -44,20 +44,12 @@ var (
 )
 
 func main() {
-	d, err := discordgo.New("Bot " + t)
+	var err error
+	d, err = discordgo.New("Bot " + t)
 	if err != nil {
 		log.Fatal(err)
 	}
 	d.AddHandler(botReady)
-
-	cc, err := d.ApplicationCommands(aid, gid)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, c := range cc {
-		d.ApplicationCommandDelete(aid, gid, c.ID)
-	}
 
 	for _, cmd := range commands {
 		_, err := d.ApplicationCommandCreate(aid, gid, cmd)
@@ -78,14 +70,24 @@ func main() {
 		log.Fatal(err)
 	}
 
+	defer d.Close()
+
 	// Wait here until CTRL-C or other term signal is received.
 	log.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	<-sc
-	// remove the command
 	log.Println("Bot is now closing")
+	// remove the commands
+	cc, err := d.ApplicationCommands(aid, gid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, c := range cc {
+		d.ApplicationCommandDelete(aid, gid, c.ID)
+	}
 }
 
 func botReady(s *discordgo.Session, event *discordgo.Ready) {
@@ -106,11 +108,13 @@ func help(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	for _, cmd := range commands {
 		m += fmt.Sprintf("%s: %s\n", cmd.Name, cmd.Description)
 	}
-	extra := "Welcome to the Electro Shack clan chat!\nIf you have suggestions (or you want to help add commands to this bot), feel free to ping chick>!"
+	extra := "Welcome to the Electro Shack clan chat!\nIf you have suggestions (or you want to help add commands to this bot), feel free to ping chick!"
 	m += "```\n" + extra
 
-	_, err := s.ChannelMessageSend(i.ChannelID, m)
-	if err != nil {
-		log.Println(err)
-	}
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: m,
+		},
+	})
 }
