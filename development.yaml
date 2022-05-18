@@ -4,4 +4,6 @@ bot:
   guild_id: ""
   token: ""
 
-test: "test"
+clash_royale:
+  clan_id: ""
+  token: ""
