@@ -12,6 +12,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/mecode4food/cr-clan-bot/pkg/clashroyale"
 	"github.com/mecode4food/cr-clan-bot/pkg/config"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -143,7 +145,14 @@ func inactive(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		})
 		for _, m := range mm {
 			if time.Since(m.LastSeen()).Hours() > 24 {
-				msg += fmt.Sprintf("* **%s**: %s Trophies: %d Last Seen: **%.2f Days ago**\n", m.Name, m.Tag, m.Trophies, time.Since(m.LastSeen()).Hours()/24)
+				c := cases.Title(language.English)
+				msg += fmt.Sprintf("* **%s**: %s Trophies: %d Role: %s **Last Seen**: **%.2f Days ago**\n",
+					m.Name,
+					m.Tag,
+					m.Trophies,
+					c.String(m.Role),
+					time.Since(m.LastSeen()).Hours()/24,
+				)
 			}
 		}
 	}

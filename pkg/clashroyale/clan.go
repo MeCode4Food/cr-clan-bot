@@ -15,7 +15,7 @@ var (
 	c *goclash.Client
 	m = sync.RWMutex{}
 
-	token = config.Viper().GetString("clashroyale.token")
+	token = config.Viper().GetString("clash_royale.token")
 )
 
 func Client() (*goclash.Client, error) {
